@@ -27,7 +27,7 @@ jobs:
       - name: Set up Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload site (repo root: index.html, admin.html, *.apk)
+      - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
@@ -35,3 +35,6 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+
+
+        # ddsfdf
