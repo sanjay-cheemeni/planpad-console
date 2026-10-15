@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PlanPad</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#17181D;--s:#23252D;--s2:#2C2F38;--b:#353844;--lime:#C8F53C;--ink:#14160F;--t:#F4F5F7;--m:#A3A9B8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--t);font:400 15px/1.45 "Google Sans","DM Sans",system-ui,sans-serif}
+h1,h2,p{margin:0}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.m{color:var(--m);font-size:13px}
+a{color:inherit;text-decoration:none}
+.btn{display:inline-block;background:var(--lime);color:var(--ink);border:0;border-radius:99px;padding:12px 22px;font:inherit;font-weight:700;cursor:pointer;text-align:center}
+.btn.alt{background:var(--s2);color:var(--t)}
+header.top{padding:18px 28px;border-bottom:1px solid var(--b)}
+.brand{font-weight:700;font-size:20px}
+main{max-width:1120px;margin:0 auto;padding:28px}
+.hero{padding:40px 0 32px;max-width:640px;display:grid;gap:14px}
+.hero h1{font-size:44px;line-height:1.1;font-weight:700}
+.hero p{font-size:17px;color:var(--m)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.card{background:var(--s);border-radius:22px;padding:22px;display:grid;gap:14px;align-content:start}
+.card h2{font-size:22px}
+.card.main{border:1px solid var(--lime)}
+@media(max-width:600px){main{padding:18px}header.top{padding:14px 18px}.hero h1{font-size:34px}}
+</style></head>
+<body>
+<header class="top"><span class="brand">PlanPad</span></header>
+
+<main>
+ <section class="hero">
+  <h1>Plan the work. Track every task.</h1>
+  <p>PlanPad keeps your projects, tasks and bugs in one place. Download the Android app to work on the go, or sign in as an admin to manage users and projects.</p>
+ </section>
+
+ <section class="grid">
+  <article class="card main">
+   <h2>Get the Android app</h2>
+   <p class="m" id="status" role="status">Tap download and we'll pick the right file for your phone.</p>
+   <button class="btn" id="dl">Download app</button>
+  </article>
+
+  <article class="card">
+   <h2>Admin sign in</h2>
+   <p class="m">For admins only. Add users, set roles, create projects and manage who can see what.</p>
+   <a class="btn alt" id="admin" href="admin.html">Sign in as admin</a>
+  </article>
+ </section>
+</main>
+
+<script>
+// ---- Edit if your admin page path or APK names differ ----
+const ADMIN_URL = "admin.html";
+const APK = {
+  "arm64-v8a":   "planpad-arm64-v8a.apk",
+  "armeabi-v7a": "planpad-armeabi-v7a.apk",
+  "x86_64":      "planpad-x86_64.apk",
+  "universal":   "planpad-universal.apk"
+};
+// -----------------------------------------------------------
+
+const $ = s => document.querySelector(s);
+$("#admin").href = ADMIN_URL;
+
+async function detectAbi() {
+  const ua = navigator.userAgent;
+  try {
+    if (navigator.userAgentData?.getHighEntropyValues) {
+      const h = await navigator.userAgentData.getHighEntropyValues(["architecture", "bitness"]);
+      const a = (h.architecture || "").toLowerCase(), bits = h.bitness || "";
+      if (a === "arm" && bits === "64") return "arm64-v8a";
+      if (a === "arm" && bits === "32") return "armeabi-v7a";
+      if (a === "x86" && bits === "64") return "x86_64";
+    }
+  } catch (e) {}
+  if (/aarch64|arm64/i.test(ua)) return "arm64-v8a";
+  if (/armv8l|armv7|armeabi/i.test(ua)) return "armeabi-v7a";
+  if (/x86_64|x64/i.test(ua)) return "x86_64";
+  if (/Android/i.test(ua)) return "arm64-v8a"; // most common on current phones
+  return "universal";                          // desktop or unknown device
+}
+
+$("#dl").onclick = async () => {
+  const abi = await detectAbi();
+  const a = document.createElement("a");
+  a.href = APK[abi]; a.download = APK[abi];
+  document.body.appendChild(a); a.click(); a.remove();
+  $("#status").textContent = `Downloading ${APK[abi]}. Open it when it finishes to install.`;
+};
+</script>
+</body></html>
